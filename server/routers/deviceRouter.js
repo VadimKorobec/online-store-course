@@ -2,14 +2,12 @@ const express = require("express");
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-    res.status(200).json({
-        message:"Device"
-    })
-});
+const ctrl = require("../controllers/deviceController");
 
-// router.post("/");
+router.get("/", ctrl.getAll);
 
-// router.get('/:id')
+router.post("/", ctrl.createDevice);
+
+router.get("/:id", ctrl.findById);
 
 module.exports = router;

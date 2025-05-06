@@ -2,8 +2,10 @@ const express = require("express");
 
 const router = express.Router();
 
-// router.get("/");
+const ctrl = require("../controllers/brandController");
 
-// router.post("/");
+router.get("/", ctrl.getAll);
+
+router.post("/", ctrl.createBrand);
 
 module.exports = router;
