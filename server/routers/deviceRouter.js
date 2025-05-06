@@ -2,10 +2,14 @@ const express = require("express");
 
 const router = express.Router();
 
-router.get("/");
+router.get("/", (req, res) => {
+    res.status(200).json({
+        message:"Device"
+    })
+});
 
-router.post("/");
+// router.post("/");
 
-router.get('/:id')
+// router.get('/:id')
 
 module.exports = router;
