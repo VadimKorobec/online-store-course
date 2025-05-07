@@ -6,7 +6,7 @@ const ctrl = require("../controllers/deviceController");
 
 router.get("/", ctrl.getAll);
 
-router.post("/", ctrl.createDevice);
+router.post("/", ctrl.create);
 
 router.get("/:id", ctrl.findById);
 

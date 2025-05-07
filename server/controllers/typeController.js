@@ -3,6 +3,8 @@ const { Type } = require("../models/models");
 
 exports.getAll = async (req, res, next) => {
   try {
+    const types = await Type.findAll();
+    res.status(200).json({ types });
   } catch (error) {
     next(error);
   }

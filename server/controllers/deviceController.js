@@ -5,8 +5,10 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
-exports.createDevice = async (req, res, next) => {
+exports.create = async (req, res, next) => {
   try {
+    const { name, price, brandId, typeId, info } = req.body;
+    const {img} = req.files
   } catch (error) {
     next(error);
   }
