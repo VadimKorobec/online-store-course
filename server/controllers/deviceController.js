@@ -5,6 +5,22 @@ const HttpError = require("../error/HttpError");
 
 exports.getAll = async (req, res, next) => {
   try {
+    const { brandId, typeId } = req.query;
+    let devices;
+    if (!brandId && !typeId) {
+      devices = await Device.findAll();
+    }
+    if (brandId && !typeId) {
+      devices = await Device.findAll({ where: { brandId } });
+    }
+    if (!brandId && typeId) {
+      devices = await Device.findAll({ where: { typeId } });
+    }
+    if (brandId && typeId) {
+      devices = await Device.findAll({ where: { brandId, typeId } });
+    }
+
+    res.status(200).json({ devices });
   } catch (error) {
     next(error);
   }
@@ -13,7 +29,7 @@ exports.getAll = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const { name, price, brandId, typeId, info } = req.body;
-    const requiredFields = { name, price, brandId, typeId};
+    const requiredFields = { name, price, brandId, typeId };
     const { img } = req.files;
 
     const missingFields = Object.keys(requiredFields)
@@ -21,10 +37,7 @@ exports.create = async (req, res, next) => {
       .join(", ");
 
     if (missingFields) {
-      throw HttpError(
-        400,
-        `Missing required fields: ${missingFields}`
-      );
+      throw HttpError(400, `Missing required fields: ${missingFields}`);
     }
 
     if (!img) {
