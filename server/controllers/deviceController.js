@@ -1,23 +1,37 @@
 const uuid = require("uuid");
 const path = require("path");
-const { Device } = require("../models/models");
+const { Device, DeviceInfo } = require("../models/models");
 const HttpError = require("../error/HttpError");
 
 exports.getAll = async (req, res, next) => {
   try {
-    const { brandId, typeId } = req.query;
+    let { brandId, typeId, limit, page } = req.query;
+    (page = page || 1), (limit = limit || 9);
+    let offset = page * limit - limit;
     let devices;
     if (!brandId && !typeId) {
-      devices = await Device.findAll();
+      devices = await Device.findAndCountAll({ limit, offset });
     }
     if (brandId && !typeId) {
-      devices = await Device.findAll({ where: { brandId } });
+      devices = await Device.findAndCountAll({
+        where: { brandId },
+        limit,
+        offset,
+      });
     }
     if (!brandId && typeId) {
-      devices = await Device.findAll({ where: { typeId } });
+      devices = await Device.findAndCountAll({
+        where: { typeId },
+        limit,
+        offset,
+      });
     }
     if (brandId && typeId) {
-      devices = await Device.findAll({ where: { brandId, typeId } });
+      devices = await Device.findAndCountAll({
+        where: { brandId, typeId },
+        limit,
+        offset,
+      });
     }
 
     res.status(200).json({ devices });
@@ -28,7 +42,7 @@ exports.getAll = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { name, price, brandId, typeId, info } = req.body;
+    let { name, price, brandId, typeId, info } = req.body;
     const requiredFields = { name, price, brandId, typeId };
     const { img } = req.files;
 
@@ -55,6 +69,18 @@ exports.create = async (req, res, next) => {
       info,
       img: fileName,
     });
+
+    if (info) {
+      info = JSON.parse(info);
+      info.forEach((i) =>
+        DeviceInfo.create({
+          title: i.title,
+          description: i.description,
+          deviceId: device.id,
+        })
+      );
+    }
+
     res.status(201).json({ device });
   } catch (error) {
     next(error);
@@ -63,6 +89,15 @@ exports.create = async (req, res, next) => {
 
 exports.findById = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const device = await Device.findOne({
+      where: { id },
+      include: [{ model: DeviceInfo, as: "info" }],
+    });
+    if (!device) {
+      throw HttpError(404, "Device not found");
+    }
+    res.status(200).json({ device });
   } catch (error) {
     next(error);
   }
